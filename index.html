@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeedbackInsight - Customer Feedback Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #4ade80;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8f9fa;
+            --dark: #1e293b;
+            --gray: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            overflow-x: hidden;
+            height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .landing-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.85), rgba(58, 12, 163, 0.85)), 
+                        url('https://www.bing.com/th/id/OIP.AYkQ-Uc7hJlejElMQVp_EwHaEl?w=243&h=211&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Main App Styles */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+        
+        nav a:hover, nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            display: none;
+            padding: 2rem 0;
+            min-height: calc(100vh - 140px);
+        }
+        
+        .main-content.active {
+            display: block;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h2 {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        /* Dashboard Styles */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stat-card.positive {
+            border-left: 5px solid var(--success);
+        }
+        
+        .stat-card.negative {
+            border-left: 5px solid var(--danger);
+        }
+        
+        .stat-card.neutral {
+            border-left: 5px solid var(--warning);
+        }
+        
+        .stat-card.total {
+            border-left: 5px solid var(--primary);
+        }
+        
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card-header i {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+        
+        .stat-card.positive .stat-card-header i {
+            color: var(--success);
+        }
+        
+        .stat-card.negative .stat-card-header i {
+            color: var(--danger);
+        }
+        
+        .stat-card.neutral .stat-card-header i {
+            color: var(--warning);
+        }
+        
+        .stat-card.total .stat-card-header i {
+            color: var(--primary);
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stat-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            font-size: 1.3rem;
+        }
+        
+        /* Data Container Styles */
+        .data-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .data-container h3 {
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .data-table th {
+            font-weight: 600;
+            color: var(--gray);
+            background: #f8fafc;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .sentiment-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .sentiment-badge.positive {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+        
+        .sentiment-badge.negative {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .sentiment-badge.neutral {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .category-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background-color: #e2e8f0;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        
+        /* Alert Styles */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+        }
+        
+        .alert-success {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: var(--success);
+        }
+        
+        /* Enhanced Feedback Form Styles with Colors */
+        .feedback-form-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .feedback-form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .feedback-form-container h3 {
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        textarea.form-control {
+            min-height: 140px;
+            resize: vertical;
+            line-height: 1.5;
+            width: 100%;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        #feedbackForm {
+            width: 100%;
+            display: block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.3);
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(74, 222, 128, 0.4);
+        }
+
+        /* Form message styling */
+        .form-message {
+            margin-top: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive Styles - FIXED MEDIA QUERIES */
+        @media (max-width: 1024px) {
+            .charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            nav ul {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .feedback-form-container {
+                padding: 1.5rem;
+                margin: 1rem 0;
+            }
+            
+            .data-table {
+                font-size: 0.8rem;
+            }
+            
+            .data-table th, 
+            .data-table td {
+                padding: 0.5rem;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .page-header h2 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .main-content {
+                padding: 1rem 0;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .hero-content {
+                padding: 1rem;
+            }
+            
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-content p {
+                font-size: 1rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+            
+            nav a {
+                display: block;
+                text-align: center;
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .cta-button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .data-container {
+                padding: 1rem;
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                min-width: 600px;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <section class="landing-page" id="landing">
+        <div class="hero-content">
+            <h1>FeedbackInsight</h1>
+            <p>Transform Customer Feedback into Actionable Business Intelligence</p>
+            <p>Advanced sentiment analysis and feedback management powered by intelligent SQL automation</p>
+            <a href="#" class="cta-button" id="enterDashboard">
+                <i class="fas fa-rocket"></i> Launch Dashboard
+            </a>
+        </div>
+    </section>
+
+     <!-- Main Application -->
+    <div class="app-container" id="app">
+        <!-- Header -->
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-comment-alt"></i>
+                        <h1>FeedbackInsight</h1>
+                    </div>
+                    <nav>
+                        <ul>
+                            <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                            <li><a href="#" class="nav-link" data-page="triggers"><i class="fas fa-bolt"></i> Auto Actions</a></li>
+                            <li><a href="#" class="nav-link" data-page="views"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                            <li><a href="#" class="nav-link" data-page="queries"><i class="fas fa-search"></i> Insights</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Page -->
+        <section id="dashboard" class="main-content active">
+            <div class="container">
+                <div class="page-header">
+                    <h2><i class="fas fa-chart-line"></i> Analytics Dashboard</h2>
+                    <p>Real-time customer sentiment analysis and feedback trends</p>
+                </div>
+            <!-- Feedback Submission Form -->
+                <div class="feedback-form-container">
+                    <h3><i class="fas fa-edit"></i> Submit New Feedback</h3>
+                    <form id="feedbackForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customerId"><i class="fas fa-user"></i> Customer ID</label>
+                                <input type="number" id="customerId" class="form-control" placeholder="Enter customer ID (e.g., 1, 2, 3...)" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productId"><i class="fas fa-box"></i> Product ID</label>
+                                <input type="number" id="productId" class="form-control" placeholder="Enter product ID (e.g., 101, 102, 103...)" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="feedbackText"><i class="fas fa-comment"></i> Your Feedback</label>
+                            <textarea id="feedbackText" class="form-control" placeholder="Share your honest experience with our product. Be specific about what you liked or disliked..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> Analyze & Submit Feedback
+                        </button>
+                        <div id="formMessage" class="form-message"></div>
+                    </form>
+                </div>
+                   
+                
+                <!-- Stats Cards -->
+                <div class="stats-cards">
+                    <div class="stat-card positive">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3>1,248</h3>
+                                <p>Positive Feedback</p>
+                            </div>
+                            <i class="fas fa-smile"></i>
+                        </div>
+                        <div class="alert alert-success">
+                            <i class="fas fa-arrow-up"></i> 12% increase from last month
+                        </div>
+                    </div>
+                    <div class="stat-card negative">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3>324</h3>
+                                <p>Negative Feedback</p>
+                            </div>
+                            <i class="fas fa-frown"></i>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-arrow-down"></i> 8% decrease from last month
+                        </div>
+                    </div>
+                    <div class="stat-card neutral">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3>512</h3>
+                                <p>Neutral Feedback</p>
+                            </div>
+                            <i class="fas fa-meh"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card total">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3>2,084</h3>
+                                <p>Total Feedback</p>
+                            </div>
+                            <i class="fas fa-comments"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <!-- Charts -->
+                <div class="charts">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-pie"></i> Sentiment Distribution</h3>
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-globe"></i> Feedback by Country</h3>
+                        <canvas id="countryChart"></canvas>
+                    </div>
+                </div>
+                
+                
+                <!-- Recent Feedback -->
+                <div class="data-container">
+                    <h3><i class="fas fa-list"></i> Recent Customer Feedback</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Feedback</th>
+                                <th>Date</th>
+                                <th>Sentiment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>AlphaPhone X</td>
+                                <td>Great performance and battery life. Very satisfied!</td>
+                                <td>2024-11-01</td>
+                                <td><span class="sentiment-badge positive">Positive</span></td>
+                            </tr>
+                            <tr>
+                                <td>Aditi Sharma</td>
+                                <td>QuickMeal Box</td>
+                                <td>Packaging was poor and arrived damaged</td>
+                                <td>2024-11-05</td>
+                                <td><span class="sentiment-badge negative">Negative</span></td>
+                            </tr>
+                            <tr>
+                                <td>Liam Smith</td>
+                                <td>SoundBuds Pro</td>
+                                <td>Sound quality is amazing, best in class!</td>
+                                <td>2024-11-07</td>
+                                <td><span class="sentiment-badge positive">Positive</span></td>
+                            </tr>
+                            <tr>
+                                <td>Maria Garcia</td>
+                                <td>EcoClean Detergent</td>
+                                <td>Cleans well but smells too strong</td>
+                                <td>2024-11-08</td>
+                                <td><span class="sentiment-badge neutral">Neutral</span></td>
+                            </tr>
+                            <tr>
+                                <td>Wei Zhang</td>
+                                <td>SmartWatch Z</td>
+                                <td>Stylish design and works perfectly with my phone</td>
+                                <td>2024-11-10</td>
+                                <td><span class="sentiment-badge positive">Positive</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Triggers Page -->
+        <section id="triggers" class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h2><i class="fas fa-bolt"></i> Automated Actions</h2>
+                    <p>Real-time automation triggered by customer feedback</p>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <h4>Negative Feedback Alerts</h4>
+                        <p>Automatically flags and logs negative feedback for immediate review by customer service team</p>
+                        <div class="alert alert-warning" style="margin-top: 1rem;">
+                            <strong>Active:</strong> 47 alerts this month
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h4>Auto Sentiment Detection</h4>
+                        <p>Intelligently categorizes feedback sentiment based on keywords and context analysis</p>
+                        <div class="alert alert-success" style="margin-top: 1rem;">
+                            <strong>Accuracy:</strong> 94% sentiment match
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Real-time Analytics</h4>
+                        <p>Updates product sentiment scores instantly as new feedback arrives</p>
+                        <div class="alert alert-success" style="margin-top: 1rem;">
+                            <strong>Updated:</strong> Live tracking active
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="data-container">
+                    <h3><i class="fas fa-bell"></i> Recent Automated Actions</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Action Type</th>
+                                <th>Product</th>
+                                <th>Feedback</th>
+                                <th>Triggered At</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Negative Feedback Alert</td>
+                                <td>QuickMeal Box</td>
+                                <td>Packaging was poor and arrived damaged</td>
+                                <td>2024-11-05 14:23</td>
+                                <td><span class="sentiment-badge negative">Escalated</span></td>
+                            </tr>
+                            <tr>
+                                <td>Sentiment Auto-Detection</td>
+                                <td>SoundBuds Pro</td>
+                                <td>Sound quality is amazing, best in class!</td>
+                                <td>2024-11-07 09:15</td>
+                                <td><span class="sentiment-badge positive">Classified</span></td>
+                            </tr>
+                            <tr>
+                                <td>Score Update</td>
+                                <td>AlphaPhone X</td>
+                                <td>Great performance and battery life</td>
+                                <td>2024-11-01 11:42</td>
+                                <td><span class="sentiment-badge positive">Updated</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Views Page -->
+        <section id="views" class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h2><i class="fas fa-chart-bar"></i> Business Intelligence Reports</h2>
+                    <p>Pre-built analytics views for strategic decision making</p>
+                </div>
+                
+                <div class="charts">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-calendar"></i> Daily Sentiment Trends</h3>
+                        <canvas id="dailyTrendChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-box"></i> Product Performance</h3>
+                        <canvas id="productPerformanceChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="data-container">
+                    <h3><i class="fas fa-table"></i> Product Sentiment Analysis</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Positive</th>
+                                <th>Negative</th>
+                                <th>Neutral</th>
+                                <th>Total</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AlphaPhone X</td>
+                                <td><span class="category-tag">Electronics</span></td>
+                                <td>156</td>
+                                <td>12</td>
+                                <td>23</td>
+                                <td>191</td>
+                                <td><span class="sentiment-badge positive">92%</span></td>
+                            </tr>
+                            <tr>
+                                <td>SoundBuds Pro</td>
+                                <td><span class="category-tag">Electronics</span></td>
+                                <td>203</td>
+                                <td>8</td>
+                                <td>15</td>
+                                <td>226</td>
+                                <td><span class="sentiment-badge positive">95%</span></td>
+                            </tr>
+                            <tr>
+                                <td>QuickMeal Box</td>
+                                <td><span class="category-tag">Food</span></td>
+                                <td>45</td>
+                                <td>28</td>
+                                <td>32</td>
+                                <td>105</td>
+                                <td><span class="sentiment-badge neutral">67%</span></td>
+                            </tr>
+                            <tr>
+                                <td>EcoClean Detergent</td>
+                                <td><span class="category-tag">Household</span></td>
+                                <td>89</td>
+                                <td>15</td>
+                                <td>41</td>
+                                <td>145</td>
+                                <td><span class="sentiment-badge positive">82%</span></td>
+                            </tr>
+                            <tr>
+                                <td>SmartWatch Z</td>
+                                <td><span class="category-tag">Wearables</span></td>
+                                <td>134</td>
+                                <td>9</td>
+                                <td>18</td>
+                                <td>161</td>
+                                <td><span class="sentiment-badge positive">91%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="data-container">
+                    <h3><i class="fas fa-globe-americas"></i> Geographic Sentiment Distribution</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Country</th>
+                                <th>Positive</th>
+                                <th>Negative</th>
+                                <th>Neutral</th>
+                                <th>Total</th>
+                                <th>Satisfaction</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>United States</td>
+                                <td>542</td>
+                                <td>89</td>
+                                <td>123</td>
+                                <td>754</td>
+                                <td><span class="sentiment-badge positive">88%</span></td>
+                            </tr>
+                            <tr>
+                                <td>United Kingdom</td>
+                                <td>287</td>
+                                <td>45</td>
+                                <td>68</td>
+                                <td>400</td>
+                                <td><span class="sentiment-badge positive">86%</span></td>
+                            </tr>
+                            <tr>
+                                <td>India</td>
+                                <td>198</td>
+                                <td>32</td>
+                                <td>45</td>
+                                <td>275</td>
+                                <td><span class="sentiment-badge positive">85%</span></td>
+                            </tr>
+                            <tr>
+                                <td>Germany</td>
+                                <td>156</td>
+                                <td>28</td>
+                                <td>39</td>
+                                <td>223</td>
+                                <td><span class="sentiment-badge positive">84%</span></td>
+                            </tr>
+                            <tr>
+                                <td>Japan</td>
+                                <td>134</td>
+                                <td>15</td>
+                                <td>29</td>
+                                <td>178</td>
+                                <td><span class="sentiment-badge positive">88%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Queries Page -->
+        <section id="queries" class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h2><i class="fas fa-search"></i> Advanced Insights</h2>
+                    <p>Deep-dive analytics and customer intelligence</p>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h4>Top Performers</h4>
+                        <p>Products with highest customer satisfaction ratings and positive feedback</p>
+                        <div style="margin-top: 1rem; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>SoundBuds Pro</span>
+                                <span class="sentiment-badge positive">95%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>AlphaPhone X</span>
+                                <span class="sentiment-badge positive">92%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>SmartWatch Z</span>
+                                <span class="sentiment-badge positive">91%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h4>Attention Needed</h4>
+                        <p>Products requiring immediate improvement based on negative feedback trends</p>
+                        <div style="margin-top: 1rem; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>QuickMeal Box</span>
+                                <span class="sentiment-badge negative">27% Negative</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>HomeClean Vacuum</span>
+                                <span class="sentiment-badge negative">18% Negative</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4>Customer Insights</h4>
+                        <p>Most engaged customers and regional sentiment patterns</p>
+                        <div style="margin-top: 1rem; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Top Contributor</span>
+                                <span>Sarah Johnson (28 reviews)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Best Region</span>
+                                <span>Scandinavia (94% positive)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="data-container">
+                    <h3><i class="fas fa-chart-line"></i> Sentiment Trends Analysis</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time Period</th>
+                                <th>Product Category</th>
+                                <th>Positive Trend</th>
+                                <th>Negative Trend</th>
+                                <th>Key Insight</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Last 30 Days</td>
+                                <td>Electronics</td>
+                                <td><span style="color: var(--success);">↑ 15%</span></td>
+                                <td><span style="color: var(--danger);">↓ 8%</span></td>
+                                <td>Strong performance in new product launches</td>
+                            </tr>
+                            <tr>
+                                <td>Last 30 Days</td>
+                                <td>Food & Beverages</td>
+                                <td><span style="color: var(--success);">↑ 5%</span></td>
+                                <td><span style="color: var(--danger);">↑ 12%</span></td>
+                                <td>Packaging issues affecting satisfaction</td>
+                            </tr>
+                            <tr>
+                                <td>Last 30 Days</td>
+                                <td>Home Appliances</td>
+                                <td><span style="color: var(--success);">↑ 8%</span></td>
+                                <td><span style="color: var(--danger);">↓ 15%</span></td>
+                                <td>Quality improvements showing positive impact</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+       
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="copyright">
+                        <p>&copy; 2024 FeedbackInsight. Customer Feedback Management System</p>
+                    </div>
+                    <div class="footer-links">
+                        <a href="#"><i class="fas fa-shield-alt"></i> Privacy</a>
+                        <a href="#"><i class="fas fa-file-contract"></i> Terms</a>
+                        <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Database API URLs
+        const API_BASE = 'http://localhost:3001/api';
+        // Landing page to app transition
+        document.getElementById('enterDashboard').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('landing').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        });
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all links and pages
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.main-content').forEach(page => page.classList.remove('active'));
+                
+                // Add active class to clicked link
+                link.classList.add('active');
+                
+                // Show corresponding page
+                const pageId = link.getAttribute('data-page');
+                document.getElementById(pageId).classList.add('active');
+
+                // Load data for the page
+                loadPageData(pageId);
+            });
+        });
+
+        // Load data based on page
+        async function loadPageData(pageId) {
+            switch(pageId) {
+                case 'dashboard':
+                    await loadDashboardData();
+                    break;
+                case 'triggers':
+                    await loadTriggersData();
+                    break;
+                case 'views':
+                    await loadViewsData();
+                    break;
+                case 'queries':
+                    await loadQueriesData();
+                    break;
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const [feedbackData, productData, dailyData, topCustomers] = await Promise.all([
+                    fetch(`${API_BASE}/feedback`).then(r => r.json()),
+                    fetch(`${API_BASE}/products/sentiment`).then(r => r.json()),
+                    fetch(`${API_BASE}/reports/daily-sentiment`).then(r => r.json()),
+                    fetch(`${API_BASE}/customers/top`).then(r => r.json())
+                ]);
+                
+                updateDashboardStats(feedbackData);
+                updateRecentFeedback(feedbackData);
+                updateCharts(productData, dailyData);
+                updateTopCustomers(topCustomers);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Update dashboard statistics
+        function updateDashboardStats(feedbackData) {
+            const positiveCount = feedbackData.filter(f => f[3] === 'Positive').length;
+            const negativeCount = feedbackData.filter(f => f[3] === 'Negative').length;
+            const neutralCount = feedbackData.filter(f => f[3] === 'Neutral').length;
+            const totalCount = feedbackData.length;
+            
+            // Update stat cards
+            document.querySelector('.stat-card.positive h3').textContent = positiveCount;
+            document.querySelector('.stat-card.negative h3').textContent = negativeCount;
+            document.querySelector('.stat-card.neutral h3').textContent = neutralCount;
+            document.querySelector('.stat-card.total h3').textContent = totalCount;
+        }
+
+        // Update recent feedback table
+        function updateRecentFeedback(feedbackData) {
+            const tbody = document.querySelector('#dashboard .data-table tbody');
+            tbody.innerHTML = '';
+            
+            feedbackData.slice(0, 5).forEach(feedback => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${feedback[5]}</td>
+                    <td>${feedback[9]}</td>
+                    <td>${feedback[1]}</td>
+                    <td>${new Date(feedback[2]).toLocaleDateString()}</td>
+                    <td><span class="sentiment-badge ${feedback[3].toLowerCase()}">${feedback[3]}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update charts with real data
+        function updateCharts(productData, dailyData) {
+            // Update sentiment chart
+            const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+            if (window.sentimentChart) window.sentimentChart.destroy();
+            
+            window.sentimentChart = new Chart(sentimentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: [
+                            productData.reduce((sum, p) => sum + (p[3] || 0), 0),
+                            productData.reduce((sum, p) => sum + (p[4] || 0), 0),
+                            productData.reduce((sum, p) => sum + (p[5] || 0), 0)
+                        ],
+                        backgroundColor: ['#4ade80', '#ef4444', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Update country chart
+            const countryCtx = document.getElementById('countryChart').getContext('2d');
+            if (window.countryChart) window.countryChart.destroy();
+            
+            // This would need country data from your API
+            window.countryChart = new Chart(countryCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['USA', 'UK', 'India', 'Germany', 'Japan', 'Others'],
+                    datasets: [{
+                        label: 'Feedback Count',
+                        data: [754, 400, 275, 223, 178, 254],
+                        backgroundColor: '#4361ee',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+         // Enhanced feedback submission with real sentiment analysis
+        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const customerId = document.getElementById('customerId').value;
+            const productId = document.getElementById('productId').value;
+            const feedbackText = document.getElementById('feedbackText').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const formMessage = document.getElementById('formMessage');
+            
+            // Basic validation
+            if (!customerId || !productId || !feedbackText) {
+                formMessage.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Please fill in all fields</div>';
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Analyzing Sentiment...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        customer_id: parseInt(customerId),
+                        product_id: parseInt(productId),
+                        feedback_text: feedbackText,
+                        feedback_date: new Date().toISOString().split('T')[0]
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success message with sentiment
+                    const sentimentClass = result.sentiment.toLowerCase();
+                    formMessage.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <strong>Feedback submitted successfully!</strong><br>
+                            <div class="sentiment-result">
+                                Detected Sentiment: 
+                                <span class="sentiment-badge ${sentimentClass}">${result.sentiment}</span>
+                                <i class="fas fa-${sentimentClass === 'positive' ? 'smile' : sentimentClass === 'negative' ? 'frown' : 'meh'}"></i>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Reset form
+                    this.reset();
+                    
+                    // Immediately update the dashboard with new data
+                    await refreshDashboardData();
+                    
+                    // Auto-clear message after 5 seconds
+                    setTimeout(() => {
+                        formMessage.innerHTML = '';
+                    }, 5000);
+                    
+                } else {
+                    formMessage.innerHTML = `<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> ${result.error || 'Error submitting feedback'}</div>`;
+                }
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                formMessage.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Network error. Please check if the server is running.</div>';
+            } finally {
+                // Reset button state
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Analyze & Submit Feedback';
+            }
+        });
+
+        // Function to refresh all dashboard data
+        async function refreshDashboardData() {
+            try {
+                const [feedbackData, productData, dailyData] = await Promise.all([
+                    fetch(`${API_BASE}/feedback`).then(r => r.json()),
+                    fetch(`${API_BASE}/products/sentiment`).then(r => r.json()),
+                    fetch(`${API_BASE}/reports/daily-sentiment`).then(r => r.json())
+                ]);
+                
+                // Update stats with animation
+                updateDashboardStats(feedbackData);
+                
+                // Update charts
+                updateCharts(productData, dailyData);
+                
+                // Update recent feedback table
+                updateRecentFeedback(feedbackData);
+                
+                // Add visual feedback to stats cards
+                animateStatsUpdate();
+                
+            } catch (error) {
+                console.error('Error refreshing dashboard:', error);
+            }
+        }
+
+        // Animate stats cards when updated
+        function animateStatsUpdate() {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.classList.add('updated');
+                setTimeout(() => {
+                    card.classList.remove('updated');
+                }, 600);
+            });
+        }
+
+        // Load triggers data (negative feedback from trigger)
+        async function loadTriggersData() {
+            try {
+                const negativeFeedback = await fetch(`${API_BASE}/negative-feedback`).then(r => r.json());
+                updateTriggersTable(negativeFeedback);
+            } catch (error) {
+                console.error('Error loading triggers data:', error);
+            }
+        }
+
+        function updateTriggersTable(negativeFeedback) {
+            const tbody = document.querySelector('#triggers .data-table tbody');
+            tbody.innerHTML = '';
+            
+            negativeFeedback.forEach(feedback => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>Negative Feedback Alert</td>
+                    <td>Product ID: ${feedback[2]}</td>
+                    <td>${feedback[3]}</td>
+                    <td>${new Date(feedback[4]).toLocaleString()}</td>
+                    <td><span class="sentiment-badge negative">Auto-Flagged</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load views data
+        async function loadViewsData() {
+            try {
+                const [productData, dailyData] = await Promise.all([
+                    fetch(`${API_BASE}/products/sentiment`).then(r => r.json()),
+                    fetch(`${API_BASE}/reports/daily-sentiment`).then(r => r.json())
+                ]);
+                
+                updateProductSentimentTable(productData);
+                updateDailyTrendChart(dailyData);
+            } catch (error) {
+                console.error('Error loading views data:', error);
+            }
+        }
+
+        function updateProductSentimentTable(productData) {
+            const tbody = document.querySelector('#views .data-table:first-of-type tbody');
+            tbody.innerHTML = '';
+            
+            productData.forEach(product => {
+                const total = (product[3] || 0) + (product[4] || 0) + (product[5] || 0);
+                const score = total > 0 ? Math.round(((product[3] || 0) / total) * 100) : 0;
+                const sentimentClass = score >= 80 ? 'positive' : score >= 60 ? 'neutral' : 'negative';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product[1]}</td>
+                    <td><span class="category-tag">${product[2]}</span></td>
+                    <td>${product[3] || 0}</td>
+                    <td>${product[4] || 0}</td>
+                    <td>${product[5] || 0}</td>
+                    <td>${total}</td>
+                    <td><span class="sentiment-badge ${sentimentClass}">${score}%</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize the dashboard when app loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial dashboard data
+            if (document.getElementById('dashboard').classList.contains('active')) {
+                loadDashboardData();
+            }
+        });
+
+// Real-time sentiment preview as user types
+   // Real-time sentiment preview as user types
+document.addEventListener('DOMContentLoaded', function() {
+    const feedbackText = document.getElementById('feedbackText');
+    if (feedbackText) {
+        feedbackText.addEventListener('input', function(e) {
+            const text = e.target.value;
+            const formMessage = document.getElementById('formMessage');
+            
+            if (text.length > 10) {
+                const previewSentiment = analyzeSentiment(text);
+                formMessage.innerHTML = `
+                    <div style="background: rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 8px;">
+                        <small>Live Sentiment Detection: <span class="sentiment-badge ${previewSentiment.toLowerCase()}">${previewSentiment}</span></small>
+                    </div>
+                `;
+            } else if (text.length === 0) {
+                formMessage.innerHTML = '';
+            }
+        });
+    }
+});
+
+// Simple client-side sentiment preview
+function analyzeSentiment(text) {
+    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'awesome', 'fantastic', 'perfect', 'love', 'happy', 'satisfied', 'wonderful', 'best', 'nice', 'recommend'];
+    const negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'worst', 'hate', 'dislike', 'angry', 'upset', 'disappointed', 'poor', 'broken', 'useless', 'waste'];
+    
+    const words = text.toLowerCase().split(/\s+/);
+    let positiveScore = 0;
+    let negativeScore = 0;
+    
+    words.forEach(word => {
+        if (positiveWords.includes(word)) positiveScore++;
+        if (negativeWords.includes(word)) negativeScore++;
+    });
+    
+    if (positiveScore > negativeScore) return 'Positive';
+    if (negativeScore > positiveScore) return 'Negative';
+    return 'Neutral';
+}
+        // Initialize charts
+        const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+        const sentimentChart = new Chart(sentimentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Positive', 'Negative', 'Neutral'],
+                datasets: [{
+                    data: [1248, 324, 512],
+                    backgroundColor: ['#4ade80', '#ef4444', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        const countryCtx = document.getElementById('countryChart').getContext('2d');
+        const countryChart = new Chart(countryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['USA', 'UK', 'India', 'Germany', 'Japan', 'Others'],
+                datasets: [{
+                    label: 'Feedback Count',
+                    data: [754, 400, 275, 223, 178, 254],
+                    backgroundColor: '#4361ee',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Additional charts for views page
+        if (document.getElementById('dailyTrendChart')) {
+            const dailyCtx = document.getElementById('dailyTrendChart').getContext('2d');
+            const dailyChart = new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Positive',
+                            data: [45, 52, 38, 61, 55, 48, 60],
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Negative',
+                            data: [12, 8, 15, 6, 10, 14, 9],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        if (document.getElementById('productPerformanceChart')) {
+            const productCtx = document.getElementById('productPerformanceChart').getContext('2d');
+            const productChart = new Chart(productCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['AlphaPhone X', 'SoundBuds', 'SmartWatch Z', 'EcoClean', 'QuickMeal'],
+                    datasets: [
+                        {
+                            label: 'Positive',
+                            data: [156, 203, 134, 89, 45],
+                            backgroundColor: '#4ade80'
+                        },
+                        {
+                            label: 'Negative',
+                            data: [12, 8, 9, 15, 28],
+                            backgroundColor: '#ef4444'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    }
+                }
+            });
+          
+
+// Navigation functionality
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Remove active class from all links and pages
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.main-content').forEach(page => page.classList.remove('active'));
+        
+        // Add active class to clicked link
+        link.classList.add('active');
+        
+        // Show corresponding page
+        const pageId = link.getAttribute('data-page');
+        document.getElementById(pageId).classList.add('active');
+        
+        // Load data for the page
+        loadPageData(pageId);
+    });
+});
+
+// Load data based on page
+async function loadPageData(pageId) {
+    switch(pageId) {
+        case 'dashboard':
+            await loadDashboardData();
+            break;
+        case 'triggers':
+            await loadTriggersData();
+            break;
+        case 'views':
+            await loadViewsData();
+            break;
+        case 'queries':
+            await loadQueriesData();
+            break;
+    }
+}
+
+// Load dashboard data
+async function loadDashboardData() {
+    try {
+        const [feedbackData, productData, dailyData, topCustomers] = await Promise.all([
+            fetch(`${API_BASE}/feedback`).then(r => r.json()),
+            fetch(`${API_BASE}/products/sentiment`).then(r => r.json()),
+            fetch(`${API_BASE}/reports/daily-sentiment`).then(r => r.json()),
+            fetch(`${API_BASE}/customers/top`).then(r => r.json())
+        ]);
+        
+        updateDashboardStats(feedbackData);
+        updateRecentFeedback(feedbackData);
+        updateCharts(productData, dailyData);
+        updateTopCustomers(topCustomers);
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+// Update dashboard statistics
+function updateDashboardStats(feedbackData) {
+    const positiveCount = feedbackData.filter(f => f[3] === 'Positive').length;
+    const negativeCount = feedbackData.filter(f => f[3] === 'Negative').length;
+    const neutralCount = feedbackData.filter(f => f[3] === 'Neutral').length;
+    const totalCount = feedbackData.length;
+    
+    // Update stat cards
+    document.querySelector('.stat-card.positive h3').textContent = positiveCount;
+    document.querySelector('.stat-card.negative h3').textContent = negativeCount;
+    document.querySelector('.stat-card.neutral h3').textContent = neutralCount;
+    document.querySelector('.stat-card.total h3').textContent = totalCount;
+}
+
+// Update recent feedback table
+function updateRecentFeedback(feedbackData) {
+    const tbody = document.querySelector('#dashboard .data-table tbody');
+    tbody.innerHTML = '';
+    
+    feedbackData.slice(0, 5).forEach(feedback => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${feedback[5]}</td>
+            <td>${feedback[9]}</td>
+            <td>${feedback[1]}</td>
+            <td>${new Date(feedback[2]).toLocaleDateString()}</td>
+            <td><span class="sentiment-badge ${feedback[3].toLowerCase()}">${feedback[3]}</span></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Update charts with real data
+function updateCharts(productData, dailyData) {
+    // Update sentiment chart
+    const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+    if (window.sentimentChart) window.sentimentChart.destroy();
+    
+    window.sentimentChart = new Chart(sentimentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive', 'Negative', 'Neutral'],
+            datasets: [{
+                data: [
+                    productData.reduce((sum, p) => sum + (p[3] || 0), 0),
+                    productData.reduce((sum, p) => sum + (p[4] || 0), 0),
+                    productData.reduce((sum, p) => sum + (p[5] || 0), 0)
+                ],
+                backgroundColor: ['#4ade80', '#ef4444', '#f59e0b'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+}
+
+// Load triggers data (negative feedback from trigger)
+async function loadTriggersData() {
+    try {
+        const negativeFeedback = await fetch(`${API_BASE}/negative-feedback`).then(r => r.json());
+        updateTriggersTable(negativeFeedback);
+    } catch (error) {
+        console.error('Error loading triggers data:', error);
+    }
+}
+
+function updateTriggersTable(negativeFeedback) {
+    const tbody = document.querySelector('#triggers .data-table tbody');
+    tbody.innerHTML = '';
+    
+    negativeFeedback.forEach(feedback => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>Negative Feedback Alert</td>
+            <td>Product ID: ${feedback[2]}</td>
+            <td>${feedback[3]}</td>
+            <td>${new Date(feedback[4]).toLocaleString()}</td>
+            <td><span class="sentiment-badge negative">Auto-Flagged</span></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Load views data
+async function loadViewsData() {
+    try {
+        const [productData, dailyData] = await Promise.all([
+            fetch(`${API_BASE}/products/sentiment`).then(r => r.json()),
+            fetch(`${API_BASE}/reports/daily-sentiment`).then(r => r.json())
+        ]);
+        
+        updateProductSentimentTable(productData);
+        updateDailyTrendChart(dailyData);
+    } catch (error) {
+        console.error('Error loading views data:', error);
+    }
+}
+
+function updateProductSentimentTable(productData) {
+    const tbody = document.querySelector('#views .data-table:first-of-type tbody');
+    tbody.innerHTML = '';
+    
+    productData.forEach(product => {
+        const total = (product[3] || 0) + (product[4] || 0) + (product[5] || 0);
+        const score = total > 0 ? Math.round(((product[3] || 0) / total) * 100) : 0;
+        const sentimentClass = score >= 80 ? 'positive' : score >= 60 ? 'neutral' : 'negative';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${product[1]}</td>
+            <td><span class="category-tag">${product[2]}</span></td>
+            <td>${product[3] || 0}</td>
+            <td>${product[4] || 0}</td>
+            <td>${product[5] || 0}</td>
+            <td>${total}</td>
+            <td><span class="sentiment-badge ${sentimentClass}">${score}%</span></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Submit feedback form (connected to your InsertFeedback procedure)
+document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const customerId = document.getElementById('customerId').value;
+    const productId = document.getElementById('productId').value;
+    const feedbackText = document.getElementById('feedbackText').value;
+    const feedbackDate = new Date().toISOString().split('T')[0]; // Today's date
+    
+    try {
+        const response = await fetch(`${API_BASE}/feedback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                customer_id: parseInt(customerId),
+                product_id: parseInt(productId),
+                feedback_text: feedbackText,
+                feedback_date: feedbackDate
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Feedback submitted successfully! Triggers will automatically process it.');
+            this.reset();
+            // Reload data to show new feedback
+            loadPageData('dashboard');
+        } else {
+            alert('❌ Error submitting feedback: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        alert('❌ Network error submitting feedback');
+    }
+});
+// Submit feedback form (connected to your InsertFeedback procedure)
+document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const customerId = document.getElementById('customerId').value;
+    const productId = document.getElementById('productId').value;
+    const feedbackText = document.getElementById('feedbackText').value;
+    const feedbackDate = new Date().toISOString().split('T')[0]; // Today's date
+    const formMessage = document.getElementById('formMessage');
+    
+    // Basic validation
+    if (!customerId || !productId || !feedbackText) {
+        formMessage.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Please fill in all fields</div>';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/feedback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                customer_id: parseInt(customerId),
+                product_id: parseInt(productId),
+                feedback_text: feedbackText,
+                feedback_date: feedbackDate
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            formMessage.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Feedback submitted successfully! Triggers will automatically process it.</div>';
+            this.reset();
+            
+            // Reload data to show new feedback
+            setTimeout(() => {
+                loadPageData('dashboard');
+                formMessage.innerHTML = '';
+            }, 3000);
+        } else {
+            formMessage.innerHTML = `<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Error submitting feedback: ${result.error}</div>`;
+        }
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        formMessage.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Network error submitting feedback. Please check if the server is running.</div>';
+    }
+});
+
+// Initialize the dashboard when app loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Landing page transition
+    document.getElementById('enterDashboard').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('landing').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadDashboardData(); // Load real data when entering dashboard
+    });
+    
+    // Load initial dashboard data
+    if (document.getElementById('dashboard').classList.contains('active')) {
+        loadDashboardData();
+    }
+});
+
+  // --- Load dashboard data ---
+  async function loadDashboard() {
+    const res = await fetch(`${API_BASE}/reports/daily-sentiment`);
+    const data = await res.json();
+
+    let pos = 0, neg = 0, neu = 0;
+    data.forEach(r => {
+      pos += r[1];
+      neg += r[2];
+      neu += r[3];
+    });
+
+    document.getElementById("positiveCount").textContent = pos;
+    document.getElementById("negativeCount").textContent = neg;
+    document.getElementById("neutralCount").textContent = neu;
+    document.getElementById("totalFeedback").textContent = pos + neg + neu;
+
+    const ctx1 = document.getElementById("sentimentChart").getContext("2d");
+    new Chart(ctx1, {
+      type: "doughnut",
+      data: {
+        labels: ["Positive", "Negative", "Neutral"],
+        datasets: [{
+          data: [pos, neg, neu],
+          backgroundColor: ["#4CAF50", "#FF5252", "#FFC107"],
+        }],
+      },
+    });
+  }
+
+  // --- Load feedback by country chart ---
+  async function loadCountryChart() {
+    const res = await fetch(`${API_BASE}/reports/country-sentiment`);
+    const data = await res.json();
+
+    const countries = data.map(r => r[0]);
+    const totals = data.map(r => r[4]);
+
+    const ctx2 = document.getElementById("countryChart").getContext("2d");
+    new Chart(ctx2, {
+      type: "bar",
+      data: {
+        labels: countries,
+        datasets: [{
+          label: "Feedback Count",
+          data: totals,
+          backgroundColor: "#4b5cff",
+        }],
+      },
+      options: { scales: { y: { beginAtZero: true } } },
+    });
+  }
+
+  // --- Submit feedback ---
+  document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const customer_id = document.getElementById("customerId").value;
+    const product_id = document.getElementById("productId").value;
+    const feedback_text = document.getElementById("feedbackText").value;
+    const feedback_date = new Date().toISOString().slice(0, 10);
+
+    const res = await fetch(`${API_BASE}/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_id, product_id, feedback_text, feedback_date }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById("feedbackMessage").innerHTML =
+        `✅ ${data.message}<br>🎯 <b>Detected Sentiment:</b> ${data.sentiment}`;
+      document.getElementById("feedbackForm").reset();
+
+      loadDashboard();
+      loadCountryChart();
+    } else {
+      document.getElementById("feedbackMessage").textContent =
+        "❌ Something went wrong while saving feedback!";
+    }
+  });
+
+  // --- Initial load ---
+  loadDashboard();
+  loadCountryChart();
+
+        }
+        // Load sample customers and products for the form
+async function loadSampleData() {
+    try {
+        const response = await fetch(`${API_BASE}/sample-data`);
+        const data = await response.json();
+        
+        // Create datalist for autocomplete
+        const customerDatalist = document.createElement('datalist');
+        customerDatalist.id = 'customerList';
+        data.customers.forEach(customer => {
+            const option = document.createElement('option');
+            option.value = customer[0]; // customer_id
+            option.textContent = `${customer[0]} - ${customer[1]}`;
+            customerDatalist.appendChild(option);
+        });
+        
+        const productDatalist = document.createElement('datalist');
+        productDatalist.id = 'productList';
+        data.products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product[0]; // product_id
+            option.textContent = `${product[0]} - ${product[1]}`;
+            productDatalist.appendChild(option);
+        });
+        
+        document.body.appendChild(customerDatalist);
+        document.body.appendChild(productDatalist);
+        
+        // Add list attributes to inputs
+        document.getElementById('customerId').setAttribute('list', 'customerList');
+        document.getElementById('productId').setAttribute('list', 'productList');
+        
+    } catch (error) {
+        console.error('Error loading sample data:', error);
+    }
+}
+    // ====== ADD THIS JAVASCRIPT IN YOUR EXISTING SCRIPT SECTION ======
+
+// Enhanced feedback submission with real server sentiment
+document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const customerId = document.getElementById('customerId').value;
+    const productId = document.getElementById('productId').value;
+    const feedbackText = document.getElementById('feedbackText').value;
+    const submitBtn = document.getElementById('submitBtn');
+    const formMessage = document.getElementById('formMessage');
+    
+    // Basic validation
+    if (!customerId || !productId || !feedbackText) {
+        formMessage.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Please fill in all fields</div>';
+        return;
+    }
+    
+    // Show loading state
+    submitBtn.classList.add('loading');
+    submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Analyzing & Submitting...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/feedback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                customer_id: parseInt(customerId),
+                product_id: parseInt(productId),
+                feedback_text: feedbackText,
+                feedback_date: new Date().toISOString().split('T')[0]
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Show SUCCESS message with ACTUAL SERVER sentiment
+            const sentimentClass = result.sentiment.toLowerCase();
+            formMessage.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> <strong>✅ Feedback submitted successfully!</strong><br>
+                    <div class="sentiment-result" style="margin-top: 10px;">
+                        <i class="fas fa-robot"></i> <strong>AI Analysis Result:</strong> 
+                        <span class="sentiment-badge ${sentimentClass}">${result.sentiment}</span>
+                        <i class="fas fa-${sentimentClass === 'positive' ? 'smile' : sentimentClass === 'negative' ? 'frown' : 'meh'}"></i>
+                    </div>
+                    ${result.feedback_id ? `<small>Feedback ID: ${result.feedback_id}</small>` : ''}
+                </div>
+            `;
+            
+            // Reset form
+            this.reset();
+            
+            // Clear the live preview
+            const previewElement = document.querySelector('.sentiment-preview');
+            if (previewElement) {
+                previewElement.remove();
+            }
+            
+            // Immediately update the dashboard with new data
+            await refreshDashboardData();
+            
+            // Auto-clear message after 5 seconds
+            setTimeout(() => {
+                formMessage.innerHTML = '';
+            }, 5000);
+            
+        } else {
+            formMessage.innerHTML = `<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> ${result.error || 'Error submitting feedback'}</div>`;
+        }
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        formMessage.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Network error. Please check if the server is running.</div>';
+    } finally {
+        // Reset button state
+        submitBtn.classList.remove('loading');
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Analyze & Submit Feedback';
+    }
+});
+
+// Update the live preview to be clearer it's just a preview
+document.addEventListener('DOMContentLoaded', function() {
+    const feedbackText = document.getElementById('feedbackText');
+    if (feedbackText) {
+        feedbackText.addEventListener('input', function(e) {
+            const text = e.target.value;
+            const formMessage = document.getElementById('formMessage');
+            
+            // Clear any existing preview
+            const existingPreview = formMessage.querySelector('.sentiment-preview');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
+            
+            if (text.length > 10) {
+                const previewSentiment = analyzeSentiment(text);
+                const previewElement = document.createElement('div');
+                previewElement.className = 'sentiment-preview';
+                previewElement.innerHTML = `
+                    <div style="background: rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 8px; margin-top: 1rem;">
+                        <small><i class="fas fa-eye"></i> <strong>Live Preview:</strong> 
+                        <span class="sentiment-badge ${previewSentiment.toLowerCase()}">${previewSentiment}</span></small>
+                        <br><small style="opacity: 0.8;">Final analysis may vary</small>
+                    </div>
+                `;
+                formMessage.appendChild(previewElement);
+            }
+        });
+    }
+    
+    // Fix form layout on page load
+    const formElements = document.querySelectorAll('.form-control, .form-row, #feedbackForm');
+    formElements.forEach(element => {
+        element.style.width = '100%';
+        element.style.boxSizing = 'border-box';
+    });
+});
+
+
+
+
+    </script>
+</body>
+</html>
